@@ -4,7 +4,7 @@
 
 When used in conjunction with Terraform, **Pipelines act as the build system**, generating slugs to be released by a Terraform config. The apps in the pipeline do not serve live production traffic. Instead, the apps provisioned by Terraform are the production system.
 
-A single [Terraform config](https://www.terraform.io/docs/configuration/index.html) embodies the complete system, enabling high-level collaboration, repeatability, test-ability, and change management.
+A single [Terraform config](https://www.terraform.io/docs/configuration/index.html) embodies the production system, enabling high-level collaboration, repeatability, test-ability, and change management.
 
 ![Diagram: Develop microservices with Heroku Flow and deploy them with Terraform](doc/terraform-heroku-flow-v02.png)
 
