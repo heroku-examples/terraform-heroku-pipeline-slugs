@@ -40,23 +40,50 @@ Ensure the [requirements](#user-content-requirements) are met, then,
 2. Set Heroku API key
     1. `heroku authorizations:create -d terraform-heroku-pipeline-slugs`
     2. `export HEROKU_API_KEY=<"Token" value from the authorization>`
-2. Set Heroku Pipeline IDs from which to capture the slugs
+3. `terraform init`
+4. Set Heroku Pipeline IDs from which to capture the slugs
     * For each desired pipeline, set its UUID (from its Heroku Dashboard URL)
       into an environment variable, and then source the pipeline-slug-ids
-      script, like this:
+      script to capture the current slug IDs, like this:
 
       ```bash
       export BUILD_PIPELINE_API=2f557b76-d685-452a-8651-9a6295a2a032
       export BUILD_PIPELINE_WEB_UI=26a3ecbf-8188-43ae-b0fe-be2d9e9fe26f
       source bin/pipeline-slug-ids
       ```
-3. `terraform init`
-4. Then, apply the config with your own top-level config values:
+
+      ⚠️ **These values must be refreshed for each new deployment.**
+5. Then, apply the config with your own top-level config values:
 
     ```bash
-    source bin/pipeline-slug-ids
+    
     terraform apply
     ```
+
+## Adaptation
+
+To adapt this pattern to your own project, the `BUILD_PIPELINE_*` names must match
+what the Terraform config expects for each `heroku_app_release` resource's slug ID.
+
+For [example](env-production.tf#L18), the value of `BUILD_PIPELINE_API` provides the variable
+`var.api_slug_production` in:
+
+```hcl
+resource "heroku_app_release" "api_production" {
+  app     = "${heroku_app.api_production.name}"
+  slug_id = "${var.api_slug_production}"
+}
+```
+
+…and the value of `BUILD_PIPELINE_WEB_UI` provides the variable
+`var.web_ui_slug_production` in:
+
+```hcl
+resource "heroku_app_release" "web_ui_production" {
+  app     = "${heroku_app.web_ui_production.name}"
+  slug_id = "${var.web_ui_slug_production}"
+}
+```
 
 -----
 
