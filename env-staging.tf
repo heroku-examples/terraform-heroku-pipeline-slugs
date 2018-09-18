@@ -44,9 +44,9 @@ resource "heroku_app" "web_ui_staging" {
   }
 }
 
-resource "heroku_addon" "papertrail_api_staging" {
-  app  = "${heroku_app.web_ui_staging.id}"
-  plan = "papertrail:choklad"
+resource "heroku_addon_attachment" "papertrail_api_staging" {
+  app_id  = "${heroku_app.web_ui_staging.id}"
+  addon_id = "${heroku_addon.papertrail_web_ui_staging.id}"
 }
 
 resource "heroku_app_release" "web_ui_staging" {
