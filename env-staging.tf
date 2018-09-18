@@ -11,17 +11,17 @@ resource "heroku_app" "api_staging" {
 }
 
 resource "heroku_addon" "papertrail_web_ui_staging" {
-  app  = "${heroku_app.api_staging.name}"
+  app  = "${heroku_app.api_staging.id}"
   plan = "papertrail:choklad"
 }
 
 resource "heroku_app_release" "api_staging" {
-  app     = "${heroku_app.api_staging.name}"
+  app     = "${heroku_app.api_staging.id}"
   slug_id = "${var.api_slug_staging}"
 }
 
 resource "heroku_formation" "api_staging" {
-  app        = "${heroku_app.api_staging.name}"
+  app        = "${heroku_app.api_staging.id}"
   type       = "web"
   quantity   = 1
   size       = "standard-1x"
@@ -45,17 +45,17 @@ resource "heroku_app" "web_ui_staging" {
 }
 
 resource "heroku_addon" "papertrail_api_staging" {
-  app  = "${heroku_app.web_ui_staging.name}"
+  app  = "${heroku_app.web_ui_staging.id}"
   plan = "papertrail:choklad"
 }
 
 resource "heroku_app_release" "web_ui_staging" {
-  app     = "${heroku_app.web_ui_staging.name}"
+  app     = "${heroku_app.web_ui_staging.id}"
   slug_id = "${var.web_ui_slug_staging}"
 }
 
 resource "heroku_formation" "web_ui_staging" {
-  app        = "${heroku_app.web_ui_staging.name}"
+  app        = "${heroku_app.web_ui_staging.id}"
   type       = "web"
   quantity   = 1
   size       = "standard-1x"

@@ -11,17 +11,17 @@ resource "heroku_app" "api_production" {
 }
 
 resource "heroku_addon" "papertrail_web_ui_production" {
-  app  = "${heroku_app.api_production.name}"
+  app  = "${heroku_app.api_production.id}"
   plan = "papertrail:choklad"
 }
 
 resource "heroku_app_release" "api_production" {
-  app     = "${heroku_app.api_production.name}"
+  app     = "${heroku_app.api_production.id}"
   slug_id = "${var.api_slug_production}"
 }
 
 resource "heroku_formation" "api_production" {
-  app        = "${heroku_app.api_production.name}"
+  app        = "${heroku_app.api_production.id}"
   type       = "web"
   quantity   = 2
   size       = "standard-1x"
@@ -45,17 +45,17 @@ resource "heroku_app" "web_ui_production" {
 }
 
 resource "heroku_addon" "papertrail_api_production" {
-  app  = "${heroku_app.web_ui_production.name}"
+  app  = "${heroku_app.web_ui_production.id}"
   plan = "papertrail:choklad"
 }
 
 resource "heroku_app_release" "web_ui_production" {
-  app     = "${heroku_app.web_ui_production.name}"
+  app     = "${heroku_app.web_ui_production.id}"
   slug_id = "${var.web_ui_slug_production}"
 }
 
 resource "heroku_formation" "web_ui_production" {
-  app        = "${heroku_app.web_ui_production.name}"
+  app        = "${heroku_app.web_ui_production.id}"
   type       = "web"
   quantity   = 2
   size       = "standard-1x"
