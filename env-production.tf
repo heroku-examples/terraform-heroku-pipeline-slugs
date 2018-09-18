@@ -45,7 +45,7 @@ resource "heroku_app" "web_ui_production" {
 }
 
 resource "heroku_addon_attachment" "papertrail_api_production" {
-  app_id  = "${heroku_app.web_ui_production.id}"
+  app_id   = "${heroku_app.web_ui_production.id}"
   addon_id = "${heroku_addon.papertrail_web_ui_production.id}"
 }
 
