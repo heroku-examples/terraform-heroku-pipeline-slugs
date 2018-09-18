@@ -2,11 +2,22 @@
 # `TF_VARS_*_slug` environment variables for Terraform.
 #
 # Usage:
-#   export API_BUILD_PIPELINE=2f557b76-d685-452a-8651-9a6295a2a032
-#   export WEB_UI_BUILD_PIPELINE=26a3ecbf-8188-43ae-b0fe-be2d9e9fe26f
-#   source bin/pipeline-slug-ids.sh
+#   export BUILD_PIPELINE_API=2f557b76-d685-452a-8651-9a6295a2a032
+#   export BUILD_PIPELINE_WEB_UI=26a3ecbf-8188-43ae-b0fe-be2d9e9fe26f
+#   source bin/pipeline-slug-ids
+#
+# When the Heroku API calls are successfull,
+# `TF_VAR_{downcased_name}_slug_{stage}` variables will be exported
+# for the current shell.
+#
+# The "downcased_name" part is extracted from the variable names,
+# such as "web_ui" from "BUILD_PIPELINE_WEB_UI".
+#
+# A different prefix may be specified by setting
+# `BUILD_PIPELINE_VAR_PREFIX`. The default is equivalent
+# to `BUILD_PIPELINE_VAR_PREFIX=BUILD_PIPELINE_`.
 
-# Extract slug IDs based on each app's pipeline coupling.
+# Function to extract slug IDs based on each app's pipeline coupling.
 # Requires two arguments:
 # 1. the slug name to identify it in variable `TF_VARS_*_slug`
 # 2. the pipeline's latest-releases data
@@ -40,23 +51,25 @@ then
 fi
 
 # These are the pipelines used to build the slugs.
-if [ -z "$API_BUILD_PIPELINE" ]
+var_prefix="${BUILD_PIPELINE_VAR_PREFIX:-BUILD_PIPELINE_}"
+eval 'pipeline_vars=(${!'"$var_prefix"'@})'
+
+if [ "${#pipeline_vars[*]}" = "0" ]
 then
-  >&2 echo "Error: requires API_BUILD_PIPELINE set to a Heroku Pipeline ID"
-  return
-fi
-if [ -z "$WEB_UI_BUILD_PIPELINE" ]
-then
-  >&2 echo "Error: requires WEB_UI_BUILD_PIPELINE set to a Heroku Pipeline ID"
+  echo "Error: no pipelines specified, set using \"${var_prefix}\"-prefixed environment variables"
   return
 fi
 
-# Fetch the most recent release data for each pipeline.
->&2 echo "🔸 GET https://api.heroku.com/pipelines/$API_BUILD_PIPELINE/latest-releases"
-api_build_pipeline_data=`curl -sS --fail "https://api.heroku.com/pipelines/$API_BUILD_PIPELINE/latest-releases" -H "Authorization: Bearer $HEROKU_API_KEY" -H "Accept: application/vnd.heroku+json; version=3.pipelines" -H "Content-Type: application/json" -H "Range: version ..; order=desc, max=10"`
->&2 echo "🔸 GET https://api.heroku.com/pipelines/$WEB_UI_BUILD_PIPELINE/latest-releases"
-web_ui_build_pipeline_data=`curl -sS --fail "https://api.heroku.com/pipelines/$WEB_UI_BUILD_PIPELINE/latest-releases" -H "Authorization: Bearer $HEROKU_API_KEY" -H "Accept: application/vnd.heroku+json; version=3.pipelines" -H "Content-Type: application/json" -H "Range: version ..; order=desc, max=10"`
+for pipeline_var in ${pipeline_vars[*]}
+do
+  pipeline_name=`echo "${pipeline_var#*${var_prefix}}" | tr '[:upper:]' '[:lower:]'`
+  pipeline_id=`eval echo '$'"${pipeline_var}"`
 
-# Extract slug IDs based on each app's pipeline coupling
-capture_slug_ids "api" "$api_build_pipeline_data"
-capture_slug_ids "web_ui" "$web_ui_build_pipeline_data"
+  # Fetch the most recent release data for each pipeline.
+  # TODO These use pre-release `version=3.pipelines` APIs. Update when released.
+  >&2 echo "🔸 GET https://api.heroku.com/pipelines/${pipeline_id}/latest-releases"
+  pipeline_data=`curl -sS --fail "https://api.heroku.com/pipelines/${pipeline_id}/latest-releases" -H "Authorization: Bearer $HEROKU_API_KEY" -H "Accept: application/vnd.heroku+json; version=3.pipelines" -H "Content-Type: application/json" -H "Range: version ..; order=desc, max=10"`
+
+  # Extract slug IDs based on each app's pipeline coupling
+  capture_slug_ids "$pipeline_name" "$pipeline_data"
+done

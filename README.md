@@ -40,6 +40,16 @@ Ensure the [requirements](#user-content-requirements) are met, then,
 2. Set Heroku API key
     1. `heroku authorizations:create -d terraform-heroku-pipeline-slugs`
     2. `export HEROKU_API_KEY=<"Token" value from the authorization>`
+2. Set Heroku Pipeline IDs from which to capture the slugs
+    * For each desired pipeline, set its UUID (from its Heroku Dashboard URL)
+      into an environment variable, and then source the pipeline-slug-ids
+      script, like this:
+
+      ```bash
+      export BUILD_PIPELINE_API=2f557b76-d685-452a-8651-9a6295a2a032
+      export BUILD_PIPELINE_WEB_UI=26a3ecbf-8188-43ae-b0fe-be2d9e9fe26f
+      source bin/pipeline-slug-ids
+      ```
 3. `terraform init`
 4. Then, apply the config with your own top-level config values:
 
