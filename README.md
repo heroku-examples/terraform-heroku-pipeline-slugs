@@ -16,6 +16,7 @@ A single [Terraform config](https://www.terraform.io/docs/configuration/index.ht
 
 ## Challenges & Caveats
 
+* **Uses pre-release Heroku Platform API for Pipelines.** To fetch current slug IDs in the pipeline, [`bin/pipeline-slug-ids`](bin/pipeline-slug-ids#L69) uses `version=3.pipelines` of the API, a version is not officially stable
 * **Config drift when using Heroku Dashboard or CLI.** Once the config is applied, if changes are made to the resources outside of Terraform, such as scaling dynos, setting config vars, changing add-ons, etc, then the Terraform state will no longer match its configuration, making it impossible to apply or destroy further until the drifting values are imported (for new resources) or manually updated in `terraform.tfstate`
 * **Renaming Terraform-provisioned Heroku apps.** If apps are renamed, Terraform can no longer access various resources without first manually editing, revising `terraform.tfstate` with the new names. See **terraform-provider-heroku** issues [#124](https://github.com/terraform-providers/terraform-provider-heroku/issues/124) & [#93](https://github.com/terraform-providers/terraform-provider-heroku/issues/93)
 
@@ -34,7 +35,7 @@ Ensure the [requirements](#user-content-requirements) are met, then,
 1. Clone this repo:
 
     ```bash
-    git clone git@github.com:mars/terraform-heroku-pipeline-slugs.git
+    git clone git@github.com:heroku-examples/terraform-heroku-pipeline-slugs.git
     cd terraform-heroku-pipeline-slugs/
     ```
 2. Set Heroku API key
